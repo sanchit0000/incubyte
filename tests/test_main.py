@@ -88,13 +88,21 @@ def test_metrics():
     )
     client.post(
         "/employees/",
+        json={"full_name": "B", "job_title": "Dev", "country": "US", "salary": 20000},
+    )
+    client.post(
+        "/employees/",
         json={
-            "full_name": "B",
-            "job_title": "Dev",
+            "full_name": "C",
+            "job_title": "Manager",
             "country": "India",
-            "salary": 20000,
+            "salary": 30000,
         },
     )
 
-    resp = client.get("/metrics/country/India")
-    assert resp.json()["avg"] == 15000
+    resp_country = client.get("/metrics/country/India")
+    assert resp_country.json()["avg"] == 20000
+
+    resp_job = client.get("/metrics/job-title/Dev")
+    assert resp_job.status_code == 200
+    assert resp_job.json()["average_salary"] == 15000
