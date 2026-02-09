@@ -74,3 +74,27 @@ def test_salary_logic():
     )
     response = client.get("/employees/1/salary")
     assert response.json()["net_salary"] == 9000.0
+
+
+def test_metrics():
+    client.post(
+        "/employees/",
+        json={
+            "full_name": "A",
+            "job_title": "Dev",
+            "country": "India",
+            "salary": 10000,
+        },
+    )
+    client.post(
+        "/employees/",
+        json={
+            "full_name": "B",
+            "job_title": "Dev",
+            "country": "India",
+            "salary": 20000,
+        },
+    )
+
+    resp = client.get("/metrics/country/India")
+    assert resp.json()["avg"] == 15000
