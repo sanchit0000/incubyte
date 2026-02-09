@@ -60,3 +60,17 @@ def test_crud_lifecycle():
     # Delete
     del_resp = client.delete(f"/employees/{emp_id}")
     assert del_resp.status_code == 204
+
+
+def test_salary_logic():
+    client.post(
+        "/employees/",
+        json={
+            "full_name": "A",
+            "job_title": "Dev",
+            "country": "India",
+            "salary": 10000,
+        },
+    )
+    response = client.get("/employees/1/salary")
+    assert response.json()["net_salary"] == 9000.0
