@@ -72,3 +72,33 @@ def get_salary_info(emp_id: int, db: Session = Depends(get_db)):
         "deductions": deductions,
         "net_salary": emp.salary - deductions,
     }
+
+
+@app.get("/metrics/country/{country}")
+def get_country_metrics(country: str, db: Session = Depends(get_db)):
+    stats = (
+        db.query(
+            func.min(models.Employee.salary),
+            func.max(models.Employee.salary),
+            func.avg(models.Employee.salary),
+        )
+        .filter(models.Employee.country == country)
+        .first()
+    )
+
+    if stats[0] is None:
+        raise HTTPException(status_code=404, detail="No data for this country")
+
+    return {"min": stats[0], "max": stats[1], "avg": stats[2]}
+
+
+@app.get("/metrics/job-title/{job_title}")
+def get_job_metrics(job_title: str, db: Session = Depends(get_db)):
+    avg = (
+        db.query(func.avg(models.Employee.salary))
+        .filter(models.Employee.job_title == job_title)
+        .scalar()
+    )
+    if avg is None:
+        raise HTTPException(status_code=404, detail="Job title not found")
+    return {"job_title": job_title, "average_salary": avg}
