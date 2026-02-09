@@ -55,3 +55,20 @@ def delete_employee(emp_id: int, db: Session = Depends(get_db)):
     db.delete(db_emp)
     db.commit()
     return Response(status_code=204)
+
+
+@app.get("/employees/{emp_id}/salary")
+def get_salary_info(emp_id: int, db: Session = Depends(get_db)):
+    emp = db.query(models.Employee).filter(models.Employee.id == emp_id).first()
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    tax_map = {"India": 0.10, "United States": 0.12}
+    tax_rate = tax_map.get(emp.country, 0.0)
+    deductions = emp.salary * tax_rate
+
+    return {
+        "gross_salary": emp.salary,
+        "deductions": deductions,
+        "net_salary": emp.salary - deductions,
+    }
