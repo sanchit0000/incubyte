@@ -44,3 +44,19 @@ def test_crud_lifecycle():
     )
     emp_id = resp.json()["id"]
     assert resp.status_code == 201
+
+    # Update
+    update_resp = client.put(
+        f"/employees/{emp_id}",
+        json={
+            "full_name": "Sanchit S",
+            "job_title": "Sr Dev",
+            "country": "India",
+            "salary": 2000,
+        },
+    )
+    assert update_resp.json()["salary"] == 2000
+
+    # Delete
+    del_resp = client.delete(f"/employees/{emp_id}")
+    assert del_resp.status_code == 204
